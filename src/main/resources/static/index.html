@@ -64,6 +64,7 @@
 								<th scope="col">ID</th>
 								<th scope="col">NOME</th>
 								<th scope="col">EDITAR</th>
+								<th scope="col">DELETAR</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -130,7 +131,7 @@
 
 						for (var i = 0; i < response.length; i++) {
 							$('#tabelaResultados > tbody').append('<tr><td>' + response[i].id +
-								'</td><td>' + response[i].nome + '</td><td><button type="button" class="btn btn-success" onclick="colocarEmEdicao(' + response[i].id + ')">Ver</button></td></tr>');
+								'</td><td>' + response[i].nome + '</td><td><button type="button" class="btn btn-success" onclick="colocarEmEdicao(' + response[i].id + ')">Ver</button></td><td><button type="button" class="btn btn-danger" onclick="deletarUser(' + response[id].id + ')">Delete</button></td></tr>');
 						}
 					}
 				}).fail(function (xhr, status, errorThrown) {
@@ -140,7 +141,7 @@
 		}
 
 		function colocarEmEdicao(id) {
-			
+
 			$.ajax({
 				method: "GET",
 				url: "buscarUsuarioId",
@@ -149,11 +150,28 @@
 					$('#id').val(response.id);
 					$('#nome').val(response.nome);
 					$('#idade').val(response.idade);
-					
+
 					$('#modalPesquisaUser').modal('hide');
 				}
 			}).fail(function (xhr, status, errorThrown) {
 				alert("Erro ao buscar o usuario por id: " + xhr.responseText);
+			});
+		}
+
+		function deletarUser(id) {
+
+			$.ajax({
+				method: "DELETE",
+				url: "delete",
+				data: "id=" + id,
+				success: function (response) {
+					
+					$('#'+id).remove();//removendo a linha do usuario pesquisado
+					
+					alert(response);
+				}
+			}).fail(function (xhr, status, errorThrown) {
+				alert("Erro ao deletar o usuario por id: " + xhr.responseText);
 			});
 		}
 
