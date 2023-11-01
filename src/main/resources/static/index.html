@@ -36,6 +36,7 @@
 		onclick="document.getElementById('formCadastroUser').reset()">Novo</button>
 	<button type="button" class="btn btn-danger" data-bs-toggle="modal"
 		data-bs-target="#modalPesquisaUser">Pesquisar</button>
+	<button type="button" class="btn btn-dark" onclick="deletarPrincipal()">Deletar</button>
 
 	<!-- Criacao do modal de pesquisa do usuario -->
 
@@ -117,7 +118,7 @@
 		}
 
 		function pesquisarUser() {
-			var nome = $("#nameBusca").val();
+			var nome = $('#nameBusca').val();
 
 			if (nome != null && nome.trim() != '') {
 
@@ -130,8 +131,8 @@
 						$('#tabelaResultados > tbody > tr').remove();
 
 						for (var i = 0; i < response.length; i++) {
-							$('#tabelaResultados > tbody').append('<tr><td>' + response[i].id +
-								'</td><td>' + response[i].nome + '</td><td><button type="button" class="btn btn-success" onclick="colocarEmEdicao(' + response[i].id + ')">Ver</button></td><td><button type="button" class="btn btn-danger" onclick="deletarUser(' + response[id].id + ')">Delete</button></td></tr>');
+							$('#tabelaResultados > tbody').append('<tr id="' + response[i].id + '"><td>' + response[i].id +
+								'</td><td>' + response[i].nome + '</td><td><button type="button" class="btn btn-success" onclick="colocarEmEdicao(' + response[i].id + ')">Ver</button></td><td><button type="button" class="btn btn-danger" onclick="deletarUser(' + response[i].id + ')">Delete</button></td></tr>');
 						}
 					}
 				}).fail(function (xhr, status, errorThrown) {
@@ -160,19 +161,29 @@
 
 		function deletarUser(id) {
 
-			$.ajax({
-				method: "DELETE",
-				url: "delete",
-				data: "id=" + id,
-				success: function (response) {
-					
-					$('#'+id).remove();//removendo a linha do usuario pesquisado
-					
-					alert(response);
-				}
-			}).fail(function (xhr, status, errorThrown) {
-				alert("Erro ao deletar o usuario por id: " + xhr.responseText);
-			});
+			if (confirm("Deseja realmente remover?")) {
+
+				$.ajax({
+					method: "DELETE",
+					url: "delete",
+					data: "id=" + id,
+					success: function (response) {
+
+						$('#' + id).remove();//removendo a linha do usuario pesquisado
+
+						alert("Usuario deletado com sucesso");
+					}
+				}).fail(function (xhr, status, errorThrown) {
+					alert("Erro ao deletar o usuario por id: " + xhr.responseText);
+				});
+			}
+		}
+		
+		function deletarPrincipal(){
+			var id = $('#id').val();
+			deletarUser(id);
+			
+			document.getElementById('formCadastroUser').reset();
 		}
 
 	</script>
