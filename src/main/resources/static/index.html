@@ -9,6 +9,13 @@
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
 		integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 
+	<style type="text/css">
+		html {
+			margin-left: 5%;
+			margin-right: 5%;
+			margin-top: 3%;
+		}
+	</style>
 </head>
 
 <body>
@@ -59,134 +66,150 @@
 
 					<!-- tabela dos usuarios -->
 
-					<table class="table" id="tabelaResultados">
-						<thead>
-							<tr>
-								<th scope="col">ID</th>
-								<th scope="col">NOME</th>
-								<th scope="col">EDITAR</th>
-								<th scope="col">DELETAR</th>
-							</tr>
-						</thead>
-						<tbody>
-							<!-- DADOS VINDOS PELO AJAX -->
-						</tbody>
-					</table>
+					<div style="height: 300px; overflow: scroll;">
+						<table class="table" id="tabelaResultados">
+							<thead>
+								<tr>
+									<th scope="col">ID</th>
+									<th scope="col">NOME</th>
+									<th scope="col">EDITAR</th>
+									<th scope="col">DELETAR</th>
+								</tr>
+							</thead>
+							<tbody>
+								<!-- DADOS VINDOS PELO AJAX -->
+							</tbody>
+						</table>
+					</di>
 
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+					</div>
 				</div>
 			</div>
 		</div>
-	</div>
 
 
 
-	<!-- compilacao jquery -->
-	<script src="https://code.jquery.com/jquery-3.7.1.min.js"
-		integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+		<!-- compilacao jquery -->
+		<script src="https://code.jquery.com/jquery-3.7.1.min.js"
+			integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 
-	<!-- compilacao JS -->
-	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
-		integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
-		crossorigin="anonymous"></script>
+		<!-- compilacao JS -->
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+			integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+			crossorigin="anonymous"></script>
 
-	<script type="text/javascript">
+		<script type="text/javascript">
 
-		function salvarUsuario() {
-			var id = $("#id").val();//utilizando jquery para pegar as informacoes das tags html
-			var nome = $("#nome").val();
-			var idade = $("#idade").val();
+			function salvarUsuario() {
+				var id = $("#id").val();//utilizando jquery para pegar as informacoes das tags html
+				var nome = $("#nome").val();
+				var idade = $("#idade").val();
 
-			$.ajax({
-				method: "POST",
-				url: "novousuario",
-				data: JSON.stringify({
-					id: id,
-					nome: nome,
-					idade: idade
-				}),
-				contentType: "application/json; charset=utf-8",
-				success: function (response) {
-					//$("#id").val(response.id);//ira mostrar o id criado
-					alert("Salvo com sucesso");
+				if(nome == null || nome != null && nome.trim() == ''){
+					$('#nome').focus();
+					alert('Por favor informar o nome');
+					return;
 				}
-			}).fail(function (xhr, status, errorThrown) {
-				alert("Erro ao salvar: " + xhr.responseText);
-			});
-		}
+				
+				if(idade == null || idade != null && idade.trim() == ''){
+					$('#idade').focus();
+					alert('Por favor informar a idade');
+					return;
+				}
+				
+				$.ajax({
+					method: "POST",
+					url: "novousuario",
+					data: JSON.stringify({
+						id: id,
+						nome: nome,
+						idade: idade
+					}),
+					contentType: "application/json; charset=utf-8",
+					success: function (response) {
+						//$("#id").val(response.id);//ira mostrar o id criado
+						alert("Salvo com sucesso");
+					}
+				}).fail(function (xhr, status, errorThrown) {
+					alert("Erro ao salvar: " + xhr.responseText);
+				});
+			}
 
-		function pesquisarUser() {
-			var nome = $('#nameBusca').val();
+			function pesquisarUser() {
+				var nome = $('#nameBusca').val();
 
-			if (nome != null && nome.trim() != '') {
+				if (nome != null && nome.trim() != '') {
+
+					$.ajax({
+						method: "GET",
+						url: "buscarPorNome",
+						data: "nome=" + nome,//data: JSON.stringify({nome: nome}),
+						//contentType: "application/json; charset=utf-8",
+						success: function (response) {
+							$('#tabelaResultados > tbody > tr').remove();
+
+							for (var i = 0; i < response.length; i++) {
+								$('#tabelaResultados > tbody').append('<tr id="' + response[i].id + '"><td>' + response[i].id +
+									'</td><td>' + response[i].nome + '</td><td><button type="button" class="btn btn-success" onclick="colocarEmEdicao(' + response[i].id + ')">Ver</button></td><td><button type="button" class="btn btn-danger" onclick="deletarUser(' + response[i].id + ')">Delete</button></td></tr>');
+							}
+						}
+					}).fail(function (xhr, status, errorThrown) {
+						alert("Erro ao buscar o usuario: " + xhr.responseText);
+					});
+				}
+			}
+
+			function colocarEmEdicao(id) {
 
 				$.ajax({
 					method: "GET",
-					url: "buscarPorNome",
-					data: "nome=" + nome,//data: JSON.stringify({nome: nome}),
-					//contentType: "application/json; charset=utf-8",
-					success: function (response) {
-						$('#tabelaResultados > tbody > tr').remove();
-
-						for (var i = 0; i < response.length; i++) {
-							$('#tabelaResultados > tbody').append('<tr id="' + response[i].id + '"><td>' + response[i].id +
-								'</td><td>' + response[i].nome + '</td><td><button type="button" class="btn btn-success" onclick="colocarEmEdicao(' + response[i].id + ')">Ver</button></td><td><button type="button" class="btn btn-danger" onclick="deletarUser(' + response[i].id + ')">Delete</button></td></tr>');
-						}
-					}
-				}).fail(function (xhr, status, errorThrown) {
-					alert("Erro ao buscar o usuario: " + xhr.responseText);
-				});
-			}
-		}
-
-		function colocarEmEdicao(id) {
-
-			$.ajax({
-				method: "GET",
-				url: "buscarUsuarioId",
-				data: "id=" + id,
-				success: function (response) {
-					$('#id').val(response.id);
-					$('#nome').val(response.nome);
-					$('#idade').val(response.idade);
-
-					$('#modalPesquisaUser').modal('hide');
-				}
-			}).fail(function (xhr, status, errorThrown) {
-				alert("Erro ao buscar o usuario por id: " + xhr.responseText);
-			});
-		}
-
-		function deletarUser(id) {
-
-			if (confirm("Deseja realmente remover?")) {
-
-				$.ajax({
-					method: "DELETE",
-					url: "delete",
+					url: "buscarUsuarioId",
 					data: "id=" + id,
 					success: function (response) {
+						$('#id').val(response.id);
+						$('#nome').val(response.nome);
+						$('#idade').val(response.idade);
 
-						$('#' + id).remove();//removendo a linha do usuario pesquisado
-
-						alert("Usuario deletado com sucesso");
+						$('#modalPesquisaUser').modal('hide');
 					}
 				}).fail(function (xhr, status, errorThrown) {
-					alert("Erro ao deletar o usuario por id: " + xhr.responseText);
+					alert("Erro ao buscar o usuario por id: " + xhr.responseText);
 				});
 			}
-		}
-		
-		function deletarPrincipal(){
-			var id = $('#id').val();
-			deletarUser(id);
-			
-			document.getElementById('formCadastroUser').reset();
-		}
 
-	</script>
+			function deletarUser(id) {
+
+				if (confirm("Deseja realmente remover?")) {
+
+					$.ajax({
+						method: "DELETE",
+						url: "delete",
+						data: "id=" + id,
+						success: function (response) {
+
+							$('#' + id).remove();//removendo a linha do usuario pesquisado
+
+							alert("Usuario deletado com sucesso");
+						}
+					}).fail(function (xhr, status, errorThrown) {
+						alert("Erro ao deletar o usuario por id: " + xhr.responseText);
+					});
+				}
+			}
+
+			function deletarPrincipal() {
+				var id = $('#id').val();
+				
+				if(id != null && id.trim() != '') {
+					deletarUser(id);
+					document.getElementById('formCadastroUser').reset();									
+				}
+			}
+
+		</script>
 </body>
 
 </html>
