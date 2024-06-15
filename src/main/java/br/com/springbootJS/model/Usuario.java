@@ -1,5 +1,6 @@
 package br.com.springbootJS.model;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 import jakarta.persistence.Entity;
@@ -10,6 +11,7 @@ import jakarta.persistence.Id;
 @Entity
 public class Usuario implements Serializable {
 
+	@Serial
 	private static final long serialVersionUID = 1L;
 
 	@Id
